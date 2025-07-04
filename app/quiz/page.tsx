@@ -33,10 +33,19 @@ export default function QuizPage() {
   const [partnerBirthHour, setPartnerBirthHour] = useState<string>("")
   const [partnerBirthMinute, setPartnerBirthMinute] = useState<string>("")
   const [partnerBirthPeriod, setPartnerBirthPeriod] = useState<string>("")
+  // Add new state for partner birth location after the existing state declarations
+  const [partnerBirthLocation, setPartnerBirthLocation] = useState<string>("")
+  // Add new state for partner logic/emotion preference after the existing state declarations
+  const [partnerLogicEmotion, setPartnerLogicEmotion] = useState<string>("")
+  // Add new state for love language after the existing state declarations
+  const [loveLanguage, setLoveLanguage] = useState<string>("")
+  // Add new state for compatibility analysis progress after the existing state declarations
+  const [compatibilityProgress, setCompatibilityProgress] = useState(0)
 
   const totalSteps = 29
   const router = useRouter()
 
+  // Update the useEffect to handle both step 13 and step 21 loading animations
   useEffect(() => {
     if (currentStep === 13) {
       const timer = setInterval(() => {
@@ -46,6 +55,24 @@ export default function QuizPage() {
             // Auto advance to next step after reaching 100%
             setTimeout(() => {
               setCurrentStep(14)
+            }, 2000)
+            return 100
+          }
+          return prev + 1
+        })
+      }, 50)
+
+      return () => clearInterval(timer)
+    }
+
+    if (currentStep === 21) {
+      const timer = setInterval(() => {
+        setCompatibilityProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(timer)
+            // Auto advance to next step after reaching 100%
+            setTimeout(() => {
+              setCurrentStep(22)
             }, 2000)
             return 100
           }
@@ -482,6 +509,43 @@ export default function QuizPage() {
       partnerBirthTime: "unknown",
     }))
     setCurrentStep(18)
+  }
+
+  // Add new handler function after the existing handlers
+  const handlePartnerBirthLocationContinue = () => {
+    if (partnerBirthLocation.trim()) {
+      setQuizAnswers((prev) => ({
+        ...prev,
+        partnerBirthLocation: partnerBirthLocation.trim(),
+      }))
+      setCurrentStep(19)
+    }
+  }
+
+  const handlePartnerDontKnowLocation = () => {
+    setQuizAnswers((prev) => ({
+      ...prev,
+      partnerBirthLocation: "unknown",
+    }))
+    setCurrentStep(19)
+  }
+
+  // Add new handler function after the existing handlers
+  const handlePartnerLogicEmotionSelect = (choice: string) => {
+    setPartnerLogicEmotion(choice)
+    setQuizAnswers((prev) => ({ ...prev, partnerLogicEmotion: choice }))
+    setTimeout(() => {
+      setCurrentStep(20)
+    }, 300)
+  }
+
+  // Add new handler function after the existing handlers
+  const handleLoveLanguageSelect = (language: string) => {
+    setLoveLanguage(language)
+    setQuizAnswers((prev) => ({ ...prev, loveLanguage: language }))
+    setTimeout(() => {
+      setCurrentStep(21)
+    }, 300)
   }
 
   // Step 1: Gender Selection
@@ -2063,6 +2127,528 @@ export default function QuizPage() {
               className="w-full max-w-md px-12 py-4 border-2 border-gray-300 hover:border-gray-400 text-slate-800 font-semibold text-lg rounded-full transition-all duration-200 bg-transparent"
             >
               I don't know
+            </Button>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  // Add Step 18: Partner Birth Location Collection after Step 17
+  // Step 18: Partner Birth Location Collection
+  if (currentStep === 18) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
+        {/* Background astrological chart */}
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: "url('/svg-image-3.svg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        />
+        {/* Header */}
+        <header className="sticky top-0 bg-white/80 backdrop-blur-sm border-b border-gray-100 z-10 relative">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              {/* Back button */}
+              <Button variant="ghost" size="sm" onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-full">
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Button>
+
+              {/* Logo */}
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
+                <span className="text-xl font-semibold text-gray-800">MOONGRADE</span>
+              </div>
+
+              {/* Progress indicator */}
+              <div className="text-sm text-gray-600 font-medium">
+                {currentStep}/{totalSteps}
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-4">
+              <Progress value={progressPercentage} className="h-2" />
+            </div>
+          </div>
+        </header>
+
+        {/* Main content */}
+        <main className="container mx-auto px-4 py-12 relative z-10">
+          <div className="max-w-2xl mx-auto">
+            {/* Question */}
+            <div className="text-center mb-12">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                What is your partner's place of birth?
+              </h1>
+              <p className="text-gray-600">
+                We need this to determine the planetary placements at the place of your partner's birth.
+              </p>
+            </div>
+
+            {/* Location input */}
+            <div className="mb-12">
+              <input
+                type="text"
+                value={partnerBirthLocation}
+                onChange={(e) => setPartnerBirthLocation(e.target.value)}
+                placeholder="Type in the place of your partner's birth"
+                className="w-full p-4 text-lg border-2 border-gray-200 rounded-full focus:border-purple-400 focus:outline-none bg-white"
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="space-y-4 text-center">
+              <Button
+                onClick={handlePartnerBirthLocationContinue}
+                disabled={!partnerBirthLocation.trim()}
+                size="lg"
+                className="w-full max-w-md px-12 py-4 bg-slate-400 hover:bg-slate-500 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold text-lg rounded-full transition-all duration-200"
+              >
+                Continue
+              </Button>
+
+              <Button
+                onClick={handlePartnerDontKnowLocation}
+                variant="outline"
+                size="lg"
+                className="w-full max-w-md px-12 py-4 border-2 border-gray-300 hover:border-gray-400 text-slate-800 font-semibold text-lg rounded-full transition-all duration-200 bg-transparent"
+              >
+                I don't know
+              </Button>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  // Add the logic/emotion options array after the existing arrays
+  const logicEmotionOptions = [
+    {
+      id: "logic",
+      label: "Logic",
+      icon: "🧠",
+    },
+    {
+      id: "emotions",
+      label: "Emotions",
+      icon: "❤️",
+    },
+    {
+      id: "both",
+      label: "A bit of both",
+      icon: "⚖️",
+    },
+  ]
+
+  // Add Step 19: Partner Logic vs Emotions after Step 18
+  // Step 19: Partner Logic vs Emotions
+  if (currentStep === 19) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+        {/* Header */}
+        <header className="sticky top-0 bg-white/80 backdrop-blur-sm border-b border-gray-100 z-10">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              {/* Back button */}
+              <Button variant="ghost" size="sm" onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-full">
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Button>
+
+              {/* Logo */}
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
+                <span className="text-xl font-semibold text-gray-800">MOONGRADE</span>
+              </div>
+
+              {/* Progress indicator */}
+              <div className="text-sm text-gray-600 font-medium">
+                {currentStep}/{totalSteps}
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-4">
+              <Progress value={progressPercentage} className="h-2" />
+            </div>
+          </div>
+        </header>
+
+        {/* Main content */}
+        <main className="container mx-auto px-4 py-12">
+          <div className="max-w-2xl mx-auto">
+            {/* Question */}
+            <div className="text-center mb-12">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Does your partner act more on logic or emotions?
+              </h1>
+            </div>
+
+            {/* Answer options */}
+            <div className="space-y-4">
+              {logicEmotionOptions.map((option) => (
+                <Card
+                  key={option.id}
+                  className={`p-6 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] border-2 ${
+                    partnerLogicEmotion === option.id
+                      ? "border-purple-400 bg-purple-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                  onClick={() => handlePartnerLogicEmotionSelect(option.id)}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="text-2xl">{option.icon}</div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900">{option.label}</h3>
+                    </div>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 transition-colors ${
+                        partnerLogicEmotion === option.id ? "border-purple-400 bg-purple-400" : "border-gray-300"
+                      }`}
+                    >
+                      {partnerLogicEmotion === option.id && (
+                        <div className="w-full h-full rounded-full bg-white scale-50"></div>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  // Add the love language options array after the existing arrays
+  const loveLanguageOptions = [
+    {
+      id: "words-of-affirmation",
+      label: "Words of affirmation",
+      icon: "❤️",
+    },
+    {
+      id: "quality-time",
+      label: "Quality time together",
+      icon: "🎊",
+    },
+    {
+      id: "physical-touch",
+      label: "Physical touch",
+      icon: "🤝",
+    },
+    {
+      id: "gifts",
+      label: "Gifts",
+      icon: "🎁",
+    },
+    {
+      id: "acts-of-service",
+      label: "Acts of service",
+      icon: "🤲",
+    },
+  ]
+
+  // Add Step 20: Love Language Selection after Step 19
+  // Step 20: Love Language Selection
+  if (currentStep === 20) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+        {/* Header */}
+        <header className="sticky top-0 bg-white/80 backdrop-blur-sm border-b border-gray-100 z-10">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              {/* Back button */}
+              <Button variant="ghost" size="sm" onClick={handleBack} className="p-2 hover:bg-gray-100 rounded-full">
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+              </Button>
+
+              {/* Logo */}
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
+                <span className="text-xl font-semibold text-gray-800">MOONGRADE</span>
+              </div>
+
+              {/* Progress indicator */}
+              <div className="text-sm text-gray-600 font-medium">
+                {currentStep}/{totalSteps}
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-4">
+              <Progress value={progressPercentage} className="h-2" />
+            </div>
+          </div>
+        </header>
+
+        {/* Main content */}
+        <main className="container mx-auto px-4 py-12">
+          <div className="max-w-2xl mx-auto">
+            {/* Question */}
+            <div className="text-center mb-12">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What is your love language?</h1>
+            </div>
+
+            {/* Answer options */}
+            <div className="space-y-4">
+              {loveLanguageOptions.map((option) => (
+                <Card
+                  key={option.id}
+                  className={`p-6 cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02] border-2 ${
+                    loveLanguage === option.id
+                      ? "border-purple-400 bg-purple-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                  onClick={() => handleLoveLanguageSelect(option.id)}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="text-2xl">{option.icon}</div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900">{option.label}</h3>
+                    </div>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 transition-colors ${
+                        loveLanguage === option.id ? "border-purple-400 bg-purple-400" : "border-gray-300"
+                      }`}
+                    >
+                      {loveLanguage === option.id && (
+                        <div className="w-full h-full rounded-full bg-white scale-50"></div>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  // Add Step 21: Compatibility Analysis Loading after Step 20
+  // Step 21: Compatibility Analysis Loading
+  if (currentStep === 21) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-800 via-slate-700 to-slate-900 relative overflow-hidden">
+        {/* Header */}
+        <header className="sticky top-0 bg-slate-800/80 backdrop-blur-sm border-b border-slate-600 z-10 relative">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              {/* Back button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBack}
+                className="p-2 hover:bg-slate-700 rounded-full text-white"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+
+              {/* Logo */}
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
+                <span className="text-xl font-semibold text-white">MOONGRADE</span>
+              </div>
+
+              {/* Progress indicator */}
+              <div className="text-sm text-gray-300 font-medium">
+                {currentStep}/{totalSteps}
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-4">
+              <Progress value={progressPercentage} className="h-2 bg-slate-600" />
+            </div>
+          </div>
+        </header>
+
+        {/* Main content */}
+        <main className="container mx-auto px-4 py-16 relative z-10">
+          <div className="max-w-2xl mx-auto text-center">
+            {/* Title */}
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-16">Analyzing your compatibility...</h1>
+
+            {/* Progress Circle */}
+            <div className="relative w-64 h-64 mx-auto mb-12">
+              <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                {/* Background circle */}
+                <circle cx="50" cy="50" r="45" stroke="rgba(148, 163, 184, 0.3)" strokeWidth="8" fill="none" />
+                {/* Progress circle */}
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  stroke="#FCD34D"
+                  strokeWidth="8"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 45}`}
+                  strokeDashoffset={`${2 * Math.PI * 45 * (1 - compatibilityProgress / 100)}`}
+                  className="transition-all duration-300 ease-out"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-5xl font-bold text-yellow-400">{compatibilityProgress}%</span>
+              </div>
+            </div>
+
+            {/* Testimonial Card */}
+            <div className="bg-white rounded-lg p-6 text-left max-w-md mx-auto">
+              {/* Stars */}
+              <div className="flex gap-1 mb-3">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="w-4 h-4 bg-green-500 rounded-sm"></div>
+                ))}
+              </div>
+
+              {/* Title */}
+              <h3 className="font-semibold text-gray-900 mb-2">Helped me find true love</h3>
+
+              {/* Review text */}
+              <p className="text-sm text-gray-700 leading-relaxed">
+                Being single for over a year made me feel desperate, but thanks to the personalized relationship
+                guidance plan and compatibility reports, I finally found my true love, Mike ❤️ We're so happy together,
+                and I just moved into his apartment!
+              </p>
+
+              {/* Reviewer */}
+              <div className="text-xs text-gray-500 mt-3">Olivia, 1987</div>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
+
+  // Add Step 22: Zodiac Compatibility Results after Step 21
+  // Step 22: Zodiac Compatibility Results
+  if (currentStep === 22) {
+    const userZodiacSign = getZodiacSign(birthMonth, birthDay)
+    const partnerZodiacSign = getZodiacSign(partnerBirthMonth, partnerBirthDay)
+    const userZodiacData = zodiacSigns[userZodiacSign as keyof typeof zodiacSigns]
+    const partnerZodiacData = zodiacSigns[partnerZodiacSign as keyof typeof zodiacSigns]
+
+    // Generate compatibility percentage (this could be made more sophisticated)
+    const compatibilityPercentage = Math.floor(Math.random() * 5) + 2.1 // Random between 2.1-7.1%
+
+    // Replace the current image src logic in both zodiac sign containers with:
+    const getZodiacImageUrl = (sign: string) => {
+      const zodiacImageMap = {
+        aquarius:
+          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/aquarius-vYQPHHMNWdxzLMFTHLmqOBD3JnDBJ9.webp",
+        aries: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/aries-mK8mX4BVtMONngFBcChaLm4GcV3jHy.webp",
+        taurus: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/taurus-2s7afofsveQlj3X6y5jOqM6yuN4bO7.webp",
+        pisces: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/pisces-sxUqsrrFUp8f6SI673AEexphTlMcLb.webp",
+        cancer: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/cancer-JAEzmyN4OqYBE5Mz6K3H10T1LlWZWl.webp",
+        leo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/leo-8FE4W0vKtlIVnLrMDWrFOMzcW8uMUt.webp",
+        sagittarius:
+          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/sagittarius-eZ4QNzXU7t2c7Mlo2T10ATYI3c8dqO.webp",
+        libra: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/libra-OZeOAeEby2A87OMMmKLF5lfzHKGewK.webp",
+        scorpio: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/scorpio-NCHGHgt81WkgqTU7Xh1DS88bV6680c.webp",
+        virgo: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/virgo-DiNRHZmhAy60RE7PVicf8PGVxQbUmN.webp",
+        gemini: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/gemini-3ah9Vu2HRb93LfjprPVIBP36I9YpCP.webp",
+        capricorn:
+          "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/capricorn-TYCfxNjko6L7SNRnABW0M7TefgDkb8.webp",
+      }
+      return zodiacImageMap[sign as keyof typeof zodiacImageMap] || zodiacImageMap.aquarius
+    }
+
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-800 via-slate-700 to-slate-900 relative overflow-hidden">
+        {/* Header */}
+        <header className="sticky top-0 bg-slate-800/80 backdrop-blur-sm border-b border-slate-600 z-10 relative">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              {/* Back button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleBack}
+                className="p-2 hover:bg-slate-700 rounded-full text-white"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+
+              {/* Logo */}
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
+                <span className="text-xl font-semibold text-white">MOONGRADE</span>
+              </div>
+
+              {/* Progress indicator */}
+              <div className="text-sm text-gray-300 font-medium">
+                {currentStep}/{totalSteps}
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mt-4">
+              <Progress value={progressPercentage} className="h-2 bg-slate-600" />
+            </div>
+          </div>
+        </header>
+
+        {/* Main content */}
+        <main className="container mx-auto px-4 py-16 relative z-10 flex items-center justify-center min-h-[calc(100vh-120px)]">
+          <div className="max-w-2xl mx-auto text-center">
+            {/* Zodiac Signs Display */}
+            <div className="flex items-center justify-center gap-12 mb-12">
+              {/* User's Zodiac Sign */}
+              <div className="bg-slate-700/50 backdrop-blur-sm rounded-3xl p-12 border border-slate-600/50 min-w-[240px] min-h-[240px] flex items-center justify-center">
+                <Image
+                  src={getZodiacImageUrl(userZodiacSign) || "/placeholder.svg"}
+                  alt={`${userZodiacData.name} constellation`}
+                  width={180}
+                  height={180}
+                  className="mx-auto"
+                />
+              </div>
+
+              {/* Plus symbol */}
+              <div className="text-4xl font-bold text-white">+</div>
+
+              {/* Partner's Zodiac Sign */}
+              <div className="bg-slate-700/50 backdrop-blur-sm rounded-3xl p-12 border border-slate-600/50 min-w-[240px] min-h-[240px] flex items-center justify-center">
+                <Image
+                  src={getZodiacImageUrl(partnerZodiacSign) || "/placeholder.svg"}
+                  alt={`${partnerZodiacData.name} constellation`}
+                  width={180}
+                  height={180}
+                  className="mx-auto"
+                />
+              </div>
+            </div>
+
+            {/* Compatibility Message */}
+            <div className="mb-12">
+              <h1 className="text-2xl md:text-3xl font-bold text-yellow-400 mb-4 leading-tight">
+                Only {compatibilityPercentage.toFixed(1)}% of {userZodiacData.name} + {partnerZodiacData.name} couples
+                have such
+                <br />
+                intuitive understanding of each other's needs!
+              </h1>
+
+              <p className="text-lg text-gray-300 leading-relaxed">
+                We will help you use your strengths to build a deeper, more
+                <br />
+                passionate connection.
+              </p>
+            </div>
+
+            {/* Continue button */}
+            <Button
+              onClick={handleContinue}
+              size="lg"
+              className="w-full max-w-sm px-12 py-4 bg-yellow-400 hover:bg-yellow-500 text-black font-semibold text-lg rounded-full transition-all duration-200 hover:scale-105"
+            >
+              Continue
             </Button>
           </div>
         </main>
